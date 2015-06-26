@@ -1,8 +1,8 @@
 {
-  "name": "jira-search",
+  "name": "jira-sprints",
   "version": "0.1.0",
-  "description": "Search jira",
-  "main": "lib/search",
+  "description": "Query jira sprints",
+  "main": "lib/sprints",
   "scripts": {
     "lint": "coffeelint -f coffeelint.json -x node_modules .",
     "precoverage": "npm run lint",
@@ -22,11 +22,11 @@
   },
   "keywords": [
     "jira",
-    "search"
+    "sprints"
   ],
-  "homepage": "https://github.com/pghalliday/jira-search",
+  "homepage": "https://github.com/pghalliday/jira-sprints",
   "bugs": {
-    "url": "https://github.com/pghalliday/jira-search/issues"
+    "url": "https://github.com/pghalliday/jira-sprints/issues"
   },
   "license": "MIT",
   "author": {
@@ -36,7 +36,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pghalliday/jira-search.git"
+    "url": "https://github.com/pghalliday/jira-sprints.git"
   },
   "dependencies": {
     "JSONStream": "^0.10.0",

@@ -1,4 +1,4 @@
-search = require '../../src/search'
+sprints = require '../../src/sprints'
 jira = require '../../mock/jira'
 port = 3000
 chai = require 'chai'
@@ -16,15 +16,13 @@ describe 'search', ->
       strictSSL: false
       user: 'myuser'
       pass: 'mypassword'
-      jql: 'project="myproject"'
-      fields: '*all'
-      expand: 'changelog'
-      maxResults: 50
+      rapidView: 0
       onTotal: (total) ->
-        total.should.equal 1000
-      mapCallback: (issue) ->
-        issue.id
+        total.should.equal 5
+      mapCallback: (report) ->
+        report.sprint.id
     )
-      .then (issues) ->
-        jira.requests.should.have.length 21
-        issues.should.deep.equal [1..1000]
+      .then (sprints) ->
+        jira.sprintqueryRequests.should.have.length 1
+        jira.sprintreportRequests.should.have.length 5
+        sprints.should.deep.equal [1..5]

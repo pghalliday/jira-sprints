@@ -18,6 +18,10 @@ sprintreportUri =
 
 describe 'jira', ->
   describe 'start/stop', ->
+    it 'should 401 if no auth supplied', ->
+
+    it 'should 404 if invalid path specified', ->
+
     it 'should maintain array of requests', ->
       jira.sprintqueryRequests.should.have.length 0
       jira.sprintreportRequests.should.have.length 0

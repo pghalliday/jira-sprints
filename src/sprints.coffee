@@ -41,11 +41,12 @@ module.exports = (params) ->
       total = data.sprints.length
       params.onTotal total
       remaining = total
-      reportPromise = (sprintId) ->
+      reportPromise = (sprintId, array) ->
         Q.nfcall(request, sprintreportParams sprintId)
           .spread (response, body) ->
             data = JSON.parse body
-            params.mapCallback data
+            array.push params.mapCallback data
+            array
       reportPromiseCalls = data.sprints.map (sprint) ->
         reportPromise.bind null, sprint.id
       reportPromiseCalls.reduce((soFar, f) ->

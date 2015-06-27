@@ -8,7 +8,7 @@
     "precoverage": "npm run lint",
     "coverage": "multi='spec=- html-cov=coverage.html mocha-cov-reporter=-' mocha --recursive --compilers coffee:coffee-script/register --require coffee-coverage/register -R mocha-multi",
     "prebuild": "npm run coverage",
-    "build": "coffee --compile --output lib/ src/",
+    "build": "rm -rf lib/ && coffee --compile --output lib/ src/",
     "integration": "./integration.sh",
     "test": "npm run integration",
     "prepublish": "npm run build"
@@ -39,10 +39,8 @@
     "url": "https://github.com/pghalliday/jira-sprints.git"
   },
   "dependencies": {
-    "JSONStream": "^0.10.0",
     "q": "^1.1.2",
-    "request": "^2.51.0",
-    "stream-reduce": "^1.0.3"
+    "request": "^2.51.0"
   },
   "devDependencies": {
     "chai": "^1.10.0",

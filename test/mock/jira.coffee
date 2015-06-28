@@ -19,8 +19,40 @@ sprintreportUri =
 describe 'jira', ->
   describe 'start/stop', ->
     it 'should 401 if no auth supplied', ->
+      jira.start(port)
+        .then ->
+          Q.nfcall(
+            request,
+            strictSSL: false
+            method: 'Get'
+            uri: sprintqueryUri 573
+            qs:
+              includeHistoricSprints: true
+              includeFutureSprints: true
+          )
+        .spread (response, body) ->
+          response.statusCode.should.equal 401
+          jira.stop()
 
     it 'should 404 if invalid path specified', ->
+      jira.start(port)
+        .then ->
+          Q.nfcall(
+            request,
+            strictSSL: false
+            method: 'Get'
+            uri: 'https://localhost:' + port + '/incorrect'
+            auth:
+              user: 'user'
+              pass: 'pass'
+              sendImmediately: true
+            qs:
+              includeHistoricSprints: true
+              includeFutureSprints: true
+          )
+        .spread (response, body) ->
+          response.statusCode.should.equal 404
+          jira.stop()
 
     it 'should maintain array of requests', ->
       jira.sprintqueryRequests.should.have.length 0

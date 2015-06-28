@@ -51,14 +51,15 @@ options =
   cert: fs.readFileSync 'test/certs/server.crt'
   passphrase: 'passphrase'
 server = https.createServer options, (request, response) ->
-  authBuffer = new Buffer(
-    request.headers.authorization.substring(6)
-    'base64'
-  )
-  auth = authBuffer.toString 'ascii'
-  authRegex = new RegExp '([^:]*):(.*)'
-  authMatch = auth.match authRegex
-  if authMatch
+  authorization = request.headers.authorization
+  if authorization
+    authBuffer = new Buffer(
+      request.headers.authorization.substring(6)
+      'base64'
+    )
+    auth = authBuffer.toString 'ascii'
+    authRegex = new RegExp '([^:]*):(.*)'
+    authMatch = auth.match authRegex
     handleRequest request, response, authMatch[1], authMatch[2]
   else
     response.writeHead 401

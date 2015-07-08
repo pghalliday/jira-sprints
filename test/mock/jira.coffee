@@ -1,9 +1,11 @@
 jira = require '../../mock/jira'
-request = require 'request'
+request = require 'superagent'
 Q = require 'q'
 port = 3000
 chai = require 'chai'
+chaiAsPromised = require 'chai-as-promised'
 chai.should()
+chai.use chaiAsPromised
 
 sprintqueryUri = (rapidViewId) ->
   'https://localhost:' +
@@ -21,37 +23,28 @@ describe 'jira', ->
     it 'should 401 if no auth supplied', ->
       jira.start(port)
         .then ->
-          Q.nfcall(
-            request,
-            strictSSL: false
-            method: 'Get'
-            uri: sprintqueryUri 573
-            qs:
+          query = request
+            .get(sprintqueryUri 573)
+            .query
               includeHistoricSprints: true
               includeFutureSprints: true
-          )
-        .spread (response, body) ->
-          response.statusCode.should.equal 401
+          Q.ninvoke query, 'end'
+        .should.be.rejected.and.eventually.have.property('status', 401)
+        .then ->
           jira.stop()
 
     it 'should 404 if invalid path specified', ->
       jira.start(port)
         .then ->
-          Q.nfcall(
-            request,
-            strictSSL: false
-            method: 'Get'
-            uri: 'https://localhost:' + port + '/incorrect'
-            auth:
-              user: 'user'
-              pass: 'pass'
-              sendImmediately: true
-            qs:
+          query = request
+            .get('https://localhost:' + port + '/incorrect')
+            .auth('user', 'pass')
+            .query
               includeHistoricSprints: true
               includeFutureSprints: true
-          )
-        .spread (response, body) ->
-          response.statusCode.should.equal 404
+          Q.ninvoke query, 'end'
+        .should.be.rejected.and.eventually.have.property('status', 404)
+        .then ->
           jira.stop()
 
     it 'should maintain array of requests', ->
@@ -59,22 +52,16 @@ describe 'jira', ->
       jira.sprintreportRequests.should.have.length 0
       jira.start(port)
         .then ->
-          Q.nfcall(
-            request,
-            strictSSL: false
-            method: 'Get'
-            uri: sprintqueryUri 573
-            auth:
-              user: 'user'
-              pass: 'pass'
-              sendImmediately: true
-            qs:
+          query = request
+            .get(sprintqueryUri 573)
+            .auth('user', 'pass')
+            .query
               includeHistoricSprints: true
               includeFutureSprints: true
-          )
-        .spread (response, body) ->
+          Q.ninvoke query, 'end'
+        .then (response) ->
           response.statusCode.should.equal 200
-          data = JSON.parse body
+          data = response.body
           data.should.deep.equal
             sprints: [
               id: 1
@@ -94,20 +81,14 @@ describe 'jira', ->
           jira.sprintqueryRequests[0].includeFutureSprints.should.equal true
           jira.sprintqueryRequests[0].user.should.equal 'user'
           jira.sprintqueryRequests[0].pass.should.equal 'pass'
-          Q.nfcall(
-            request,
-            strictSSL: false
-            method: 'Get'
-            uri: sprintqueryUri 123
-            auth:
-              user: 'user'
-              pass: 'pass'
-              sendImmediately: true
-            qs:
+          query = request
+            .get(sprintqueryUri 123)
+            .auth('user', 'pass')
+            .query
               includeHistoricSprints: false
               includeFutureSprints: true
-          )
-        .spread (response, body) ->
+          Q.ninvoke query, 'end'
+        .then (response) ->
           response.statusCode.should.equal 200
           jira.sprintqueryRequests.should.have.length 2
           jira.sprintreportRequests.should.have.length 0
@@ -116,22 +97,16 @@ describe 'jira', ->
           jira.sprintqueryRequests[1].includeFutureSprints.should.equal true
           jira.sprintqueryRequests[1].user.should.equal 'user'
           jira.sprintqueryRequests[1].pass.should.equal 'pass'
-          Q.nfcall(
-            request,
-            strictSSL: false
-            method: 'Get'
-            uri: sprintreportUri
-            auth:
-              user: 'user'
-              pass: 'pass'
-              sendImmediately: true
-            qs:
+          query = request
+            .get(sprintreportUri)
+            .auth('user', 'pass')
+            .query
               rapidViewId: 573
               sprintId: 2
-          )
-        .spread (response, body) ->
+          Q.ninvoke query, 'end'
+        .then (response) ->
           response.statusCode.should.equal 200
-          data = JSON.parse body
+          data = response.body
           data.should.deep.equal
             sprint:
               id: 2

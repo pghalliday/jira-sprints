@@ -1,4 +1,4 @@
-request = require 'request'
+request = require 'superagent'
 Q = require 'q'
 
 sprintqueryUri = (rapidViewId) ->
@@ -11,40 +11,36 @@ sprintreportUri =
 module.exports = (params) ->
   params.onTotal = params.onTotal || ->
   params.mapCallback = params.mapCallback || (report) -> report
-  sprintqueryParams =
-    method: 'GET'
-    strictSSL: params.strictSSL
-    auth:
-      user: params.user
-      pass: params.pass
-      sendImmediately: true
-    uri: params.serverRoot + sprintqueryUri params.rapidView
-    qs:
-      includeHistoricSprints: true
-      includeFutureSprints: true
-  sprintreportParams = (sprintId) ->
-    method: 'GET'
-    strictSSL: params.strictSSL
-    auth:
-      user: params.user
-      pass: params.pass
-      sendImmediately: true
-    uri: params.serverRoot + sprintreportUri
-    qs:
-      rapidViewId: params.rapidView
-      sprintId: sprintId
+  sprintqueryRequest = ->
+    query = request
+      .get(params.serverRoot + sprintqueryUri params.rapidView)
+      .query
+        includeHistoricSprints: true
+        includeFutureSprints: true
+    if params.user
+      query.auth params.user, params.pass
+    query
+  sprintreportRequest = (sprintId) ->
+    query = request
+      .get(params.serverRoot + sprintreportUri)
+      .query
+        rapidViewId: params.rapidView
+        sprintId: sprintId
+    if params.user
+      query.auth params.user, params.pass
+    query
   Q()
     .then ->
-      Q.nfcall request, sprintqueryParams
-    .spread (response, body) ->
-      data = JSON.parse body
+      Q.ninvoke sprintqueryRequest(), 'end'
+    .then (response) ->
+      data = response.body
       total = data.sprints.length
       params.onTotal total
       remaining = total
       reportPromise = (sprintId, array) ->
-        Q.nfcall(request, sprintreportParams sprintId)
-          .spread (response, body) ->
-            data = JSON.parse body
+        Q.ninvoke(sprintreportRequest(sprintId), 'end')
+          .then (response) ->
+            data = response.body
             array.push params.mapCallback data
             array
       reportPromiseCalls = data.sprints.map (sprint) ->

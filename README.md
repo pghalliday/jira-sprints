@@ -17,7 +17,6 @@ var sprints = require('jira-sprints');
 
 sprints({
   serverRoot: 'https://my.jira.server', // the base URL for the JIRA server
-  strictSSL: true, // whether to strictly check server SSL certs
   user: 'myuser', // the user name
   pass: 'mypassword', // the password
   rapidView: 625, // the rapidView ID

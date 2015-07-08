@@ -1,6 +1,6 @@
 {
   "name": "jira-sprints",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Query jira sprints",
   "main": "lib/sprints",
   "scripts": {
